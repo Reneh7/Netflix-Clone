@@ -69,6 +69,10 @@ export default function ModalMovie({ handleShow, handleClose, show, modalData })
     }
   };
 
+  const handleCommentUpdate = (updatedComment) => {
+    setComment(updatedComment);
+  };
+
   return (
     <div>
       <Modal show={show} onHide={handleClose} animation={false}>
@@ -87,9 +91,6 @@ export default function ModalMovie({ handleShow, handleClose, show, modalData })
               value={comment}
               onChange={handleCommentChange}
             />
-            {/* <Button variant="secondary" onSubmit={handleAddToFavorite} onClick={handleAddComment}>
-              Submit
-            </Button> */}
           </Form.Group>
         </Modal.Body>
         <Modal.Footer>
@@ -101,10 +102,7 @@ export default function ModalMovie({ handleShow, handleClose, show, modalData })
             </Button>
         </Modal.Footer>
       </Modal>
-      {showFavList && <FavList />}
+      {showFavList && <FavList updateComment={comment}  />}
     </div>
   );
 }
-
-
-

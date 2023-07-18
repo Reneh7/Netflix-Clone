@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Card, Button, Col, Container,Form } from "react-bootstrap";
+import { Card, Button, Col, Container, Form } from "react-bootstrap";
 
-export default function FavList() {
+export default function FavList({ updateComment, onUpdateComment }) {
   const [favMovies, setFavMovies] = useState([]);
-  const [updateComment, setUpdateComment] = useState("");
-  console.log(updateComment)
 
   useEffect(() => {
     const fetchFavoriteMovies = async () => {
@@ -48,7 +46,7 @@ export default function FavList() {
     try {
       const movieToUpdate = favMovies.find((movie) => movie.id === movieId);
       const updatedMovie = { ...movieToUpdate, comment: updateComment };
-      
+
       const url = process.env.REACT_APP_MOVIES_URL;
       const response = await fetch(`${url}/UPDATE/${movieId}`, {
         method: "PUT",
@@ -57,7 +55,7 @@ export default function FavList() {
         },
         body: JSON.stringify(updatedMovie),
       });
-  
+
       if (response.ok) {
         setFavMovies((prevMovies) =>
           prevMovies.map((movie) => {
@@ -68,7 +66,6 @@ export default function FavList() {
           })
         );
         console.log("Comment updated for the movie");
-        setUpdateComment(""); 
       } else {
         console.log("Failed to update comment for the movie");
       }
@@ -78,8 +75,9 @@ export default function FavList() {
   };
 
   const handleUpdateCommentChange = (event) => {
-    setUpdateComment(event.target.value);
+    onUpdateComment(event.target.value);
   };
+
   return (
     <Container>
       <h2>Favorite Movies</h2>
@@ -91,16 +89,18 @@ export default function FavList() {
                 <Card.Title>
                   {movie.title} ({movie.release_date})
                 </Card.Title>
-                <Card.Img variant="top" src={movie.image}  className="card-img-top" />
+                <Card.Img variant="top" src={movie.image} className="card-img-top" />
                 <Card.Text>{movie.comment}</Card.Text>
                 <div>
                   <Button variant="danger" onClick={() => handleDeleteMovie(movie.id)}>
                     Delete
                   </Button>
-                  <Form onSubmit={(e) => {
-                    e.preventDefault();
-                    handleUpdateComment(movie.id);
-                  }}>
+                  <Form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleUpdateComment(movie.id);
+                    }}
+                  >
                     <Form.Group>
                       <Form.Control
                         type="text"
@@ -109,9 +109,9 @@ export default function FavList() {
                         onChange={handleUpdateCommentChange}
                       />
                     </Form.Group>
-                  <Button variant="primary" type="submit">
-                    Update
-                  </Button>
+                    <Button variant="primary" type="submit">
+                      Update
+                    </Button>
                   </Form>
                 </div>
               </Card.Body>
