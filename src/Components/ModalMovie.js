@@ -1,21 +1,54 @@
 import React, { useState } from "react";
 import { Button, Modal, Form } from "react-bootstrap";
+import FavList from "./FavList";
 
 export default function ModalMovie({ handleShow, handleClose, show, modalData }) {
   const [comment, setComment] = useState("");
+  const [showFavList, setShowFavList] = useState(false);
+  const truncatedOverview = modalData.overview.substring(0, 200);
 
   const handleCommentChange = (event) => {
     setComment(event.target.value);
   };
-  
-  const handleAddToFavorite = async () => {
-  const movieData = {
-    t: modalData.title,
-    y: parseInt(modalData.release_date),
-    c: comment,
+
+  const handleAddComment = async () => {
+    try {
+      const movieData = {
+        t: modalData.title,
+        y: parseInt(modalData.release_date),
+        o: truncatedOverview,
+        c: comment,
+      };
+
+      const url = process.env.REACT_APP_MOVIES_URL;
+      const response = await fetch(`${url}/addMovie`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(movieData),
+      });
+
+      if (response.ok) {
+        console.log("Comment added:", movieData);
+        setComment("");
+      } else {
+        console.log("Failed to add comment");
+      }
+    } catch (error) {
+      console.log("Error:", error);
+    }
   };
 
-    try{
+  const handleAddToFavorite = async () => {
+    try {
+      const movieData = {
+        t: modalData.title,
+        y: parseInt(modalData.release_date),
+        o: truncatedOverview,
+        c: comment,
+      };
+
       const url = process.env.REACT_APP_MOVIES_URL;
       const response = await fetch(`${url}/addMovie`, {
         method: "POST",
@@ -27,7 +60,7 @@ export default function ModalMovie({ handleShow, handleClose, show, modalData })
 
       if (response.ok) {
         console.log("Movie added to favorites:", movieData);
-        handleClose();
+        setShowFavList(true);
       } else {
         console.log("Failed to add movie to favorites");
       }
@@ -40,7 +73,9 @@ export default function ModalMovie({ handleShow, handleClose, show, modalData })
     <div>
       <Modal show={show} onHide={handleClose} animation={false}>
         <Modal.Header closeButton>
-          <Modal.Title>{modalData.title} {modalData.release_date}</Modal.Title>
+          <Modal.Title>
+            {modalData.title} {modalData.release_date}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <p>{modalData.overview}</p>
@@ -52,17 +87,24 @@ export default function ModalMovie({ handleShow, handleClose, show, modalData })
               value={comment}
               onChange={handleCommentChange}
             />
+            {/* <Button variant="secondary" onSubmit={handleAddToFavorite} onClick={handleAddComment}>
+              Submit
+            </Button> */}
           </Form.Group>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
-          <Button variant="primary" onClick={handleAddToFavorite}>
-            Add to Favorites
-          </Button>
+          <Button variant="primary" onSubmit={handleAddToFavorite} onClick={handleAddComment}>
+              Add To Favourite
+            </Button>
         </Modal.Footer>
       </Modal>
+      {showFavList && <FavList />}
     </div>
   );
 }
+
+
+
